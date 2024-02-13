@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,27 +8,66 @@ datasource db {
 }
 
 model User {
-  id          Int           @id @default(autoincrement())
-  username    String        @db.VarChar(30) @unique
-  password    String        @db.VarChar(72)
-  email       String?
-  todos       Todo[]        
+  id               Int                @id @default(autoincrement())
+  username         String             @unique @db.VarChar(30)
+  password         String             @db.VarChar(72)
+  email            String?
+  TableReservation TableReservation[]
+  Confirm          Confirm[]
+  Purchase         Purchase[]
 
   @@map("users")
 }
 
+model Product {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  price       Float
+  // Add other fields as needed
+  Confirm     Confirm[]
+  Purchase    Purchase[]
 
-model Todo {
-  id          Int           @id @default(autoincrement())
-  title       String        @db.VarChar(150)
-  status      Status        @default(PENDING)
-  dueDate     DateTime      @db.Date @map("due_date")
-  userId      Int           @map("user_id")
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt   DateTime      @default(now()) @db.Timestamp(0) @map("created_at")
-  updatedAt   DateTime      @updatedAt @db.Timestamp(0) @map("updated_at")
+  @@map("products")
+}
 
-  @@map("todos")
+model TableReservation {
+  id          Int        @id @default(autoincrement())
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id])
+  tableNumber Int
+  status      Status
+  // Add other fields as needed
+  Confirm     Confirm[]
+  Purchase    Purchase[]
+
+  @@map("table_reservations")
+}
+
+model Confirm {
+  id                 Int              @id @default(autoincrement())
+  username           String
+  user               User             @relation(fields: [username], references: [username])
+  product            Product          @relation(fields: [productId], references: [id])
+  productId          Int
+  tableReservation   TableReservation @relation(fields: [tableReservationId], references: [id])
+  tableReservationId Int
+
+  @@map("confirms")
+}
+
+model Purchase {
+  id                 Int              @id @default(autoincrement())
+  userId             Int
+  user               User             @relation(fields: [userId], references: [id])
+  productId          Int
+  product            Product          @relation(fields: [productId], references: [id])
+  tableReservation   TableReservation @relation(fields: [tableReservationId], references: [id])
+  tableReservationId Int
+  quantity           Int
+  totalPrice         Float
+
+  @@map("purchases")
 }
 
 enum Status {

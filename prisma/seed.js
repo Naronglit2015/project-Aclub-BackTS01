@@ -1,39 +1,42 @@
-const bcrypt = require('bcryptjs')
-const {PrismaClient} = require("@prisma/client")
-const prisma =  new PrismaClient()
+const bcrypt = require('bcryptjs');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
+const password = bcrypt.hashSync('123456');
 
-const password = bcrypt.hashSync('123456')
-const userData=[
-    {username : 'andy', password ,email : 'andy@ggg.mail'},
-    {username : 'bobby', password ,email : 'bobby@ggg.mail'},
-    {username : 'candy', password ,email : 'candy@ggg.mail'},
-]
+const userData = [
+  { username: 'andy', password, email: 'andy@ggg.mail' },
+  { username: 'bobby', password, email: 'bobby@ggg.mail' },
+  { username: 'candy', password, email: 'candy@ggg.mail' },
+];
 
-const todoData = [
-    {title : 'Learn Html ', duedate : new Date(), user_id : 1},
-    {title : 'Learn CSS ', duedate : new Date(), user_id : 2},
-    {title : 'Learn JS ', duedate : new Date(), user_id : 2},
-    {title : 'Learn REACT ', duedate : new Date(), user_id : 3},
-    {title : 'Learn REACT01 ', duedate : new Date(), user_id : 3},
-]
-
-
-
+const productData = [
+  { name: 'Product 1', description: 'Description of Product 1', price: 10.99 },
+  { name: 'Product 2', description: 'Description of Product 2', price: 19.99 },
+  { name: 'Product 3', description: 'Description of Product 3', price: 15.49 },
+];
 
 const run = async () => {
-    // await prisma.user.deleteMany({})
-    // await prisma.user.deleteMany({})
- 
-    // prisma.$executeRaw`Drop database ccac01_connect`
-    // prisma.$executeRaw`create database ccac01_connect`
+  try {
+    await prisma.user.deleteMany({}); // Delete all existing users
+    await prisma.product.deleteMany({}); // Delete all existing products
 
-    await prisma.todo.deleteMany({
-        data : userData
-    })
-    await prisma.todo.createMany({
-        data : todoData
-    })
-}
+    // Create new users
+    await prisma.user.createMany({
+      data: userData,
+    });
 
-run()
+    // Create new products
+    await prisma.product.createMany({
+      data: productData,
+    });
+
+    console.log('Data seeding completed successfully!');
+  } catch (error) {
+    console.error('Error seeding data:', error);
+  } finally {
+    await prisma.$disconnect(); // Disconnect Prisma client
+  }
+};
+
+run();
